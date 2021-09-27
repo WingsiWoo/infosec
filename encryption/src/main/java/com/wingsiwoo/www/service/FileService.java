@@ -1,6 +1,6 @@
 package com.wingsiwoo.www.service;
 
-import com.wingsiwoo.www.po.LoginBo;
+import com.wingsiwoo.www.po.EncryptBo;
 
 /**
  * @author WingsiWoo
@@ -8,10 +8,9 @@ import com.wingsiwoo.www.po.LoginBo;
  */
 public interface FileService {
     /**
-     * 用户登录
-     *
-     * @param loginBo 登录的账号密码
-     * @return 密码清空，填充密钥
+     * 加/解密
+     * @param encryptBo encryptBo
+     * @return 加/解密后的文件字节数组
      */
-    LoginBo login(LoginBo loginBo);
+    byte[] encrypt(EncryptBo encryptBo);
 }

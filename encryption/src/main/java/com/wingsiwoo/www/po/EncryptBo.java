@@ -15,6 +15,6 @@ public class EncryptBo {
     @NotEmpty(message = "密钥不能为空")
     private String privateKey;
 
-    @NotNull(message = "待解密文件不能为空")
+    @NotNull(message = "待加/解密文件不能为空")
     private MultipartFile multipartFile;
 }

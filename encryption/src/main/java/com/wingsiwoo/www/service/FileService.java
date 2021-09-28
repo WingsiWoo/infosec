@@ -1,6 +1,8 @@
 package com.wingsiwoo.www.service;
 
-import com.wingsiwoo.www.po.EncryptBo;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author WingsiWoo
@@ -9,8 +11,10 @@ import com.wingsiwoo.www.po.EncryptBo;
 public interface FileService {
     /**
      * 加/解密
-     * @param encryptBo encryptBo
-     * @return 加/解密后的文件字节数组
+     *
+     * @param multipartFile 待加/解密文件
+     * @param privateKey    密钥
+     * @param response      response
      */
-    byte[] encrypt(EncryptBo encryptBo);
+    void encrypt(MultipartFile multipartFile, String privateKey, HttpServletResponse response);
 }

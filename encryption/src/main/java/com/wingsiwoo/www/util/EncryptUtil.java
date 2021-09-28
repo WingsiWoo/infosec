@@ -2,9 +2,10 @@ package com.wingsiwoo.www.util;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -12,11 +13,11 @@ import java.nio.charset.StandardCharsets;
  * @date 2021/9/26
  */
 public class EncryptUtil {
-    public static byte[] encryptFile(MultipartFile multipartFile, String privateKey) {
+    public static void encryptFile(MultipartFile multipartFile, String privateKey, HttpServletResponse response) {
+        byte[] keyBytes = privateKey.getBytes(StandardCharsets.UTF_8);
+        byte[] buffer = new byte[1024];
         try (InputStream inputStream = multipartFile.getInputStream();
-             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            byte[] keyBytes = privateKey.getBytes(StandardCharsets.UTF_8);
-            byte[] buffer = new byte[1024];
+             OutputStream outputStream = response.getOutputStream()) {
             while (inputStream.available() > 0) {
                 int read = inputStream.read(buffer);
                 for (int i = 0; i < read; i++) {
@@ -24,13 +25,16 @@ public class EncryptUtil {
                 }
                 outputStream.write(buffer);
             }
-            return outputStream.toByteArray();
+            // 清空输出流
+            outputStream.flush();
         } catch (IOException e) {
             throw new IllegalArgumentException("文件加/解密失败");
         }
     }
 
-    public static String getFileSuffix(String name) {
+    public static String getFileSuffix(MultipartFile multipartFile) {
+        String name = multipartFile.getOriginalFilename();
+        assert name != null;
         return name.substring(name.lastIndexOf("."));
     }
 }

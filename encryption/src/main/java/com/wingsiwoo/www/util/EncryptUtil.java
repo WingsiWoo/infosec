@@ -20,10 +20,11 @@ public class EncryptUtil {
              OutputStream outputStream = response.getOutputStream()) {
             while (inputStream.available() > 0) {
                 int read = inputStream.read(buffer);
+                byte[] encryptedBuffer = new byte[read];
                 for (int i = 0; i < read; i++) {
-                    buffer[i] ^= keyBytes[i % keyBytes.length];
+                    encryptedBuffer[i] = (byte) (buffer[i] ^ keyBytes[i % keyBytes.length]);
                 }
-                outputStream.write(buffer);
+                outputStream.write(encryptedBuffer);
             }
             // 清空输出流
             outputStream.flush();

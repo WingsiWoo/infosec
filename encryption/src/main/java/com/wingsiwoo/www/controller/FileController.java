@@ -1,10 +1,7 @@
 package com.wingsiwoo.www.controller;
 
 import com.wingsiwoo.www.service.FileService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -22,6 +19,7 @@ public class FileController {
     @Resource
     private FileService fileService;
 
+    @CrossOrigin
     @PostMapping("/encrypt")
     public void encode(@NotNull(message = "文件不能为空") @RequestParam MultipartFile multipartFile,
                        @NotEmpty(message = "密钥不能为空") @RequestParam String privateKey,

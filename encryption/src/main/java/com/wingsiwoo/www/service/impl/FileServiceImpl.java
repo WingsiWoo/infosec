@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
 
 /**
  * @author WingsiWoo
@@ -16,8 +17,8 @@ import java.net.URLEncoder;
 @Service
 public class FileServiceImpl implements FileService {
     @Override
-    public void encrypt(final MultipartFile multipartFile, final String privateKey, final HttpServletResponse response) {
-        String fileName = "encryptedFile" + EncryptUtil.getFileSuffix(multipartFile);
+    public void encrypt(MultipartFile multipartFile, String privateKey, HttpServletResponse response) {
+        String fileName = "encryptedFile" + LocalDateTime.now().getSecond() + EncryptUtil.getFileSuffix(multipartFile);
 
         try {
             // 设置响应头
@@ -28,9 +29,8 @@ public class FileServiceImpl implements FileService {
             // 进度条所需响应头
             response.addHeader("Accept-Ranges", "bytes");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException("编码不支持");
         }
-
 
         EncryptUtil.encryptFile(multipartFile, privateKey, response);
     }

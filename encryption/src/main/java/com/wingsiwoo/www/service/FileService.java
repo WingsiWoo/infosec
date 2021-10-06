@@ -1,8 +1,6 @@
 package com.wingsiwoo.www.service;
 
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 
 /**
  * @author WingsiWoo
@@ -10,11 +8,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface FileService {
     /**
-     * 加/解密
+     * 加/解密接口
      *
-     * @param multipartFile 待加/解密文件
-     * @param privateKey    密钥
-     * @param response      response
+     * @param file       待处理文件
+     * @param privateKey 密钥
+     * @return 处理后的文件路径
      */
-    void encrypt(MultipartFile multipartFile, String privateKey, HttpServletResponse response);
+    String encrypt(File file, String privateKey);
 }

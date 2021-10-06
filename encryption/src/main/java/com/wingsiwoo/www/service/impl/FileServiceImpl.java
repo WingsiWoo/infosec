@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
@@ -17,21 +19,19 @@ import java.time.LocalDateTime;
 @Service
 public class FileServiceImpl implements FileService {
     @Override
-    public void encrypt(MultipartFile multipartFile, String privateKey, HttpServletResponse response) {
-        String fileName = "encryptedFile" + LocalDateTime.now().getSecond() + EncryptUtil.getFileSuffix(multipartFile);
+    public String encrypt(File file, String privateKey) {
+        File encryptedFile = new File(file.getName() + "-encrypted" + EncryptUtil.getFileSuffix(file));
 
         try {
-            // 设置响应头
-            response.setCharacterEncoding("UTF-8");
-            response.addHeader("Content-Disposition", "inline; filename=" + URLEncoder.encode(fileName, "UTF-8") +
-                    ";filename*=UTF-8''" + URLEncoder.encode(fileName, "UTF-8"));
-            response.addHeader("Content-Type", "application/octet-stream");
-            // 进度条所需响应头
-            response.addHeader("Accept-Ranges", "bytes");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException("编码不支持");
+           if(!encryptedFile.exists()) {
+               encryptedFile.createNewFile();
+           }
+           if(EncryptUtil.encryptFile(file, privateKey, encryptedFile)) {
+               return encryptedFile.getAbsolutePath();
+           }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("创建文件" + encryptedFile.getName() + "失败");
         }
-
-        EncryptUtil.encryptFile(multipartFile, privateKey, response);
+        return null;
     }
 }

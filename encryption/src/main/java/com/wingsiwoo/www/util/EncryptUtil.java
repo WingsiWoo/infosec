@@ -1,11 +1,6 @@
 package com.wingsiwoo.www.util;
 
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -13,11 +8,11 @@ import java.nio.charset.StandardCharsets;
  * @date 2021/9/26
  */
 public class EncryptUtil {
-    public static void encryptFile(MultipartFile multipartFile, String privateKey, HttpServletResponse response) {
+    public static boolean encryptFile(File file, String privateKey, File encryptedFile) {
         byte[] keyBytes = privateKey.getBytes(StandardCharsets.UTF_8);
         byte[] buffer = new byte[1024];
-        try (InputStream inputStream = multipartFile.getInputStream();
-             OutputStream outputStream = response.getOutputStream()) {
+        try (InputStream inputStream = new FileInputStream(file);
+             OutputStream outputStream = new FileOutputStream(encryptedFile)) {
             while (inputStream.available() > 0) {
                 int read = inputStream.read(buffer);
                 byte[] encryptedBuffer = new byte[read];
@@ -28,14 +23,14 @@ public class EncryptUtil {
             }
             // 清空输出流
             outputStream.flush();
+            return true;
         } catch (IOException e) {
             throw new IllegalArgumentException("文件加/解密失败");
         }
     }
 
-    public static String getFileSuffix(MultipartFile multipartFile) {
-        String name = multipartFile.getOriginalFilename();
-        assert name != null;
+    public static String getFileSuffix(File file) {
+        String name = file.getName();
         return name.substring(name.lastIndexOf("."));
     }
 }

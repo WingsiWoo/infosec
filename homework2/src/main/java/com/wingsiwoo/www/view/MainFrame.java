@@ -7,6 +7,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
+import java.util.Enumeration;
+
+import static com.wingsiwoo.www.constant.ChoiceConstant.*;
 
 /**
  * @author WingsiWoo
@@ -94,6 +97,7 @@ public class MainFrame extends JFrame {
         caesar.setActionCommand("CAESAR");
         caesar.setBounds(250, 200, 120, 50);
         caesar.setFont(font);
+        caesar.setSelected(true);
         container.add(caesar);
 
         // playfair radio button
@@ -128,10 +132,51 @@ public class MainFrame extends JFrame {
     }
 
     private void registerEncryptListener() {
+        String text = textField.getText().trim();
+        if(text.isEmpty()) {
+            JOptionPane.showMessageDialog(MainFrame.this, "待加/解密文本不可为空", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+        String key = keyField.getText().trim();
+        if(key.isEmpty()) {
+            JOptionPane.showMessageDialog(MainFrame.this, "密钥或偏移量不可为空", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
 
+        switch (getChoice()) {
+            case CAESAR :
+                if(!key.matches("^-?\\d+$")) {
+                    JOptionPane.showMessageDialog(MainFrame.this, "请输入纯数字偏移量", "ERROR", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.caesar(text, Integer.getInteger(key)), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
+                }
+                break;
+            case PLAYFAIR:
+
+                break;
+            case HILL:
+
+
+                break;
+            default:
+                JOptionPane.showMessageDialog(MainFrame.this, "请先选择加密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+        // 如果为凯撒解密，偏移量取负（用户输入原来的偏移量）
     }
 
     private void registerDecryptListener() {
 
+    }
+
+    /**
+     * 获取选择的加密算法
+     */
+    private String getChoice() {
+        Enumeration<AbstractButton> elements = buttonGroup.getElements();
+        while (elements.hasMoreElements()) {
+            AbstractButton button = elements.nextElement();
+            if(button.isSelected()){
+                return button.getActionCommand();
+            }
+        }
+        return null;
     }
 }

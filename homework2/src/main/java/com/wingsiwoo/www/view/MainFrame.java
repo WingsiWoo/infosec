@@ -22,17 +22,22 @@ public class MainFrame extends JFrame {
      */
     private JTextField textField;
     /**
-     * 凯撒加密按钮
+     * 密钥/位移文本框
      */
-    private JButton caesarButton;
+    private JTextField keyField;
     /**
-     * playfair加密按钮
+     * 加密按钮
      */
-    private JButton playfairButton;
+    private JButton encryptButton;
     /**
-     * hill加密按钮
+     * 解密按钮
      */
-    private JButton hillButton;
+    private JButton decryptButton;
+
+    /**
+     * 加/解密方式选择组
+     */
+    private ButtonGroup buttonGroup;
 
     @PostConstruct
     private void initComponents() {
@@ -51,40 +56,82 @@ public class MainFrame extends JFrame {
         container.setLayout(null);
 
         // set the position of the components
-        Font textFiledFont = new Font("alias", Font.PLAIN, 17);
+        Font font = new Font("alias", Font.PLAIN, 18);
+        JLabel textLabel = new JLabel();
+        textLabel.setText("待加/解密文本");
+        textLabel.setFont(font);
+        textLabel.setBounds(85, 80, 280, 50);
+        container.add(textLabel);
+
+        JLabel keyLabel = new JLabel();
+        keyLabel.setText("密文或偏移量");
+        keyLabel.setFont(font);
+        keyLabel.setBounds(85, 150, 280, 50);
+        container.add(keyLabel);
+
         // textField
         textField.setEditable(true);
-        textField.setBounds(170, 130, 280, 50);
-        textField.setFont(textFiledFont);
+        textField.setBounds(270, 80, 280, 50);
+        textField.setFont(font);
         container.add(textField);
 
-        // caesarButton
-        caesarButton.setText("CAESAR");
-        caesarButton.setBounds(580, 60, 110, 45);
-        container.add(caesarButton);
+        // keyField
+        keyField.setEditable(true);
+        keyField.setBounds(270, 150, 280, 50);
+        keyField.setFont(font);
+        container.add(keyField);
 
-        // playfairButton
-        playfairButton.setText("PLAYFAIR");
-        playfairButton.setBounds(580, 140, 110, 45);
-        container.add(playfairButton);
+        // buttonGroup
+        JRadioButton caesar = new JRadioButton("CAESAR");
+        JRadioButton playfair = new JRadioButton("PLAYFAIR");
+        JRadioButton hill = new JRadioButton("HILL");
+        // add radio buttons into the same button group to mutual exclusive
+        buttonGroup.add(caesar);
+        buttonGroup.add(playfair);
+        buttonGroup.add(hill);
 
-        // hillButton
-        hillButton.setText("HILL");
-        hillButton.setBounds(580, 220, 110, 45);
-        container.add(hillButton);
+        // caesar radio button
+        caesar.setActionCommand("CAESAR");
+        caesar.setBounds(250, 200, 120, 50);
+        caesar.setFont(font);
+        container.add(caesar);
+
+        // playfair radio button
+        playfair.setActionCommand("PLAYFAIR");
+        playfair.setBounds(350, 200, 120, 50);
+        playfair.setFont(font);
+        container.add(playfair);
+
+        // hill radio button
+        hill.setActionCommand("HILL");
+        hill.setBounds(470, 200, 120, 50);
+        hill.setFont(font);
+        container.add(hill);
+
+        // encryptButton
+        encryptButton.setText("加密");
+        encryptButton.setBounds(280, 260, 80, 50);
+        container.add(encryptButton);
+
+        // decryptButton
+        decryptButton.setText("解密");
+        decryptButton.setBounds(440, 260, 80, 50);
+        container.add(decryptButton);
     }
 
     private void initField() {
         textField = new JTextField();
-        caesarButton = new JButton();
-        playfairButton = new JButton();
-        hillButton = new JButton();
+        keyField = new JTextField();
+        buttonGroup = new ButtonGroup();
+        encryptButton = new JButton();
+        decryptButton = new JButton();
     }
 
-    private void registerListener() {
-        String text = textField.getText().trim();
-        // this.caesarButton.addMouseListener();
-        // this.playfairButton.addMouseListener();
-        // this.hillButton.addMouseListener();
+    private void registerEncryptListener() {
+
+    }
+
+    private void registerDecryptListener() {
+
     }
 }

@@ -5,9 +5,15 @@ package com.wingsiwoo.www.service;
  * @date 2021/10/13
  */
 public interface EncryptService {
+    /**
+     * 凯撒加/解密方式
+     * @param str 待加密字符串
+     * @param offset 偏移量
+     * @return 加密后字符串
+     */
     String caesar(String str, int offset);
 
-    String playfair(String str);
+    String playfair(String str, String key);
 
     String hill(String str);
 }

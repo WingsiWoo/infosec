@@ -116,11 +116,13 @@ public class MainFrame extends JFrame {
         encryptButton.setText("加密");
         encryptButton.setBounds(280, 260, 80, 50);
         container.add(encryptButton);
+        registerEncryptListener();
 
         // decryptButton
         decryptButton.setText("解密");
         decryptButton.setBounds(440, 260, 80, 50);
         container.add(decryptButton);
+        registerDecryptListener();
     }
 
     private void initField() {
@@ -133,36 +135,64 @@ public class MainFrame extends JFrame {
 
     private void registerEncryptListener() {
         String text = textField.getText().trim();
-        if(text.isEmpty()) {
-            JOptionPane.showMessageDialog(MainFrame.this, "待加/解密文本不可为空", "ERROR", JOptionPane.ERROR_MESSAGE);
-        }
         String key = keyField.getText().trim();
-        if(key.isEmpty()) {
-            JOptionPane.showMessageDialog(MainFrame.this, "密钥或偏移量不可为空", "ERROR", JOptionPane.ERROR_MESSAGE);
+        checkInput(text, key);
+
+        String choice = getChoice();
+        if(choice == null) {
+            JOptionPane.showMessageDialog(MainFrame.this, "请选择加/解密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
+        } else {
+            switch (choice) {
+                case CAESAR :
+                    if(!key.matches("^-?\\d+$")) {
+                        JOptionPane.showMessageDialog(MainFrame.this, "请输入纯数字偏移量", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.caesar(text, Integer.getInteger(key)), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
+                    }
+                    break;
+                case PLAYFAIR:
+
+                    break;
+                case HILL:
+
+
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(MainFrame.this, "请先选择加密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
-        switch (getChoice()) {
-            case CAESAR :
-                if(!key.matches("^-?\\d+$")) {
-                    JOptionPane.showMessageDialog(MainFrame.this, "请输入纯数字偏移量", "ERROR", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.caesar(text, Integer.getInteger(key)), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
-                }
-                break;
-            case PLAYFAIR:
-
-                break;
-            case HILL:
-
-
-                break;
-            default:
-                JOptionPane.showMessageDialog(MainFrame.this, "请先选择加密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
-        }
-        // 如果为凯撒解密，偏移量取负（用户输入原来的偏移量）
     }
 
     private void registerDecryptListener() {
+        String text = textField.getText().trim();
+        String key = keyField.getText().trim();
+        checkInput(text, key);
+
+        String choice = getChoice();
+        if(choice == null) {
+            JOptionPane.showMessageDialog(MainFrame.this, "请选择加/解密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
+        } else {
+            switch (choice) {
+                case CAESAR :
+                    if(!key.matches("^-?\\d+$")) {
+                        JOptionPane.showMessageDialog(MainFrame.this, "请输入纯数字偏移量", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        // caesar解密把原来的偏移量取负
+                        JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.caesar(text, -Integer.getInteger(key)), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
+                    }
+                    break;
+                case PLAYFAIR:
+
+                    break;
+                case HILL:
+
+
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(MainFrame.this, "请先选择加密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
+        }
 
     }
 
@@ -178,5 +208,14 @@ public class MainFrame extends JFrame {
             }
         }
         return null;
+    }
+
+    private void checkInput(String text, String key) {
+        if(text.isEmpty()) {
+            JOptionPane.showMessageDialog(MainFrame.this, "待加/解密文本不可为空", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+        if(key.isEmpty()) {
+            JOptionPane.showMessageDialog(MainFrame.this, "密钥或偏移量不可为空", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

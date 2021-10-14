@@ -101,7 +101,50 @@ public class EncryptServiceImpl implements EncryptService {
 
     @Override
     public String playfairDecrypt(String str, String key) {
-        return null;
+        Assert.isTrue(str.matches("[a-zA-Z]+"), "PLAYFAIR解密的字符串必须为全英文字符");
+        Assert.isTrue(key.matches("[a-zA-Z]+"), "PLAYFAIR密钥必须为全英文字符");
+
+        // 用于存储字符-下标的映射关系，方便代换
+        Map<Character, Coordinate> map = new HashMap<>();
+        // 初始化字母矩阵
+        char[][] matrix = initMatrix(key, map);
+
+        char[] groupedStr = getGroupedStr(str);
+        StringBuilder decryptedStr = new StringBuilder();
+        for (int i = 1; i < groupedStr.length; i += 2) {
+            Coordinate firstCoordinate = map.get(groupedStr[i - 1]);
+            Coordinate secondCoordinate = map.get(groupedStr[i]);
+            if (firstCoordinate.getX().equals(secondCoordinate.getX())) {
+                // 同一行的情况--用左面的字母替代，如果为第一列则用最后一列替代
+                if (firstCoordinate.getY() != 0) {
+                    decryptedStr.append(matrix[firstCoordinate.getX()][firstCoordinate.getY() - 1]);
+                } else {
+                    decryptedStr.append(matrix[firstCoordinate.getX()][4]);
+                }
+                if (secondCoordinate.getY() != 0) {
+                    decryptedStr.append(matrix[secondCoordinate.getX()][secondCoordinate.getY() - 1]);
+                } else {
+                    decryptedStr.append(matrix[secondCoordinate.getX()][4]);
+                }
+            } else if (firstCoordinate.getY().equals(secondCoordinate.getY())) {
+                // 同一列的情况--用上面的字母替代，如果为第一行则用最后一行替代
+                if (firstCoordinate.getX() != 0) {
+                    decryptedStr.append(matrix[firstCoordinate.getX() - 1][firstCoordinate.getY()]);
+                } else {
+                    decryptedStr.append(matrix[4][firstCoordinate.getY()]);
+                }
+                if (secondCoordinate.getX() != 0) {
+                    decryptedStr.append(matrix[secondCoordinate.getX() - 1][secondCoordinate.getY()]);
+                } else {
+                    decryptedStr.append(matrix[4][secondCoordinate.getY()]);
+                }
+            } else {
+                // 不同行不同列的情况--横向替换
+                decryptedStr.append(matrix[firstCoordinate.getX()][secondCoordinate.getY()]);
+                decryptedStr.append(matrix[secondCoordinate.getX()][firstCoordinate.getY()]);
+            }
+        }
+        return decryptedStr.toString();
     }
 
     /**
@@ -132,7 +175,7 @@ public class EncryptServiceImpl implements EncryptService {
         // 填充字符使用w
         str = str.toLowerCase();
         StringBuilder builder = new StringBuilder();
-        for (int i = 1; ; i += 2) {
+        for (int i = 1; i < str.length(); i += 2) {
             // 位于下标i-1和i的字符为一组
             if (str.charAt(i - 1) == str.charAt(i)) {
                 // 如果一组的两个字符相同，则在中间插入填充字符w
@@ -166,21 +209,36 @@ public class EncryptServiceImpl implements EncryptService {
         char[] keyChars = getDeduplicatedKey(key, charSet);
         // 5*5字母矩阵
         char[][] matrix = new char[5][5];
-        char k = 'a';
+        char c = 'a';
 
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if (i + j < keyChars.length) {
-                    // 把去重后的密文字符数组按顺序填入矩阵中
-                    matrix[i][j] = keyChars[i + j];
-                    map.put(keyChars[i + j], new Coordinate(i, j));
-                } else {
-                    // 把密文中未出现过的字母按顺序填入矩阵中
-                    if (charSet.add(k)) {
-                        matrix[i][j] = k;
-                        map.put(k, new Coordinate(i, j));
-                    }
-                    k++;
+        // 把密文中未出现过的字母按顺序填入矩阵中
+        int i = 0;
+        int j = 0;
+        for (char keyChar : keyChars) {
+            matrix[i][j] = keyChar;
+            if (j + 1 < 5) {
+                j++;
+            } else {
+                j = 0;
+                i++;
+            }
+        }
+        for ( ; i < 5; i++) {
+            for ( ; ; j++) {
+                // 跳过已经出现过的字符
+                while (!charSet.add(c)) {
+                    c++;
+                }
+                matrix[i][j] = c;
+                map.put(c, new Coordinate(i, j));
+                // 把i和j视为同一个字符
+                if(c + 1 == 'j') {
+                    c += 2;
+                }
+                // 初始化下一行
+                if(j == 4) {
+                    j = 0;
+                    break;
                 }
             }
         }

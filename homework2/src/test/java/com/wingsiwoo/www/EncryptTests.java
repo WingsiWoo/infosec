@@ -31,7 +31,8 @@ public class EncryptTests {
 
     @Test
     public void playfair() {
-
+        Assertions.assertEquals("bhkxiqvpqmcx", encryptService.playfairEncrypt("helloworld", "sgfu"));
+        Assertions.assertEquals("helloworld", encryptService.playfairDecrypt("bhkxiqvpqmcx", "sgfu"));
     }
 
     @Test

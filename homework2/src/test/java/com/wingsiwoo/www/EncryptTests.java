@@ -2,10 +2,7 @@ package com.wingsiwoo.www;
 
 import com.wingsiwoo.www.service.EncryptService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
@@ -31,8 +28,15 @@ public class EncryptTests {
 
     @Test
     public void playfair() {
-        Assertions.assertEquals("bhkxiqvpqmcx", encryptService.playfairEncrypt("helloworld", "sgfu"));
-        Assertions.assertEquals("helloworld", encryptService.playfairDecrypt("bhkxiqvpqmcx", "sgfu"));
+        String key = "sgfu";
+        Assertions.assertEquals("bhkxiqvpqmcx", encryptService.playfairEncrypt("helloworld", key));
+        Assertions.assertEquals("helloworld", encryptService.playfairDecrypt("bhkxiqvpqmcx", key));
+
+        Assertions.assertEquals("gzshcixx", encryptService.playfairEncrypt("aabbkw", key));
+        Assertions.assertEquals("aabbkw", encryptService.playfairDecrypt("gzshcixx", key));
+
+        Assertions.assertEquals("xxgpxx", encryptService.playfairEncrypt("wwkw", key));
+        Assertions.assertEquals("wwkw", encryptService.playfairDecrypt("xxgpxx", key));
     }
 
     @Test

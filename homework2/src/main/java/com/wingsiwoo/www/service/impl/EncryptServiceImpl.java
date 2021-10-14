@@ -109,7 +109,7 @@ public class EncryptServiceImpl implements EncryptService {
         // 初始化字母矩阵
         char[][] matrix = initMatrix(key, map);
 
-        char[] groupedStr = getGroupedStr(str);
+        char[] groupedStr = str.toCharArray();
         StringBuilder decryptedStr = new StringBuilder();
         for (int i = 1; i < groupedStr.length; i += 2) {
             Coordinate firstCoordinate = map.get(groupedStr[i - 1]);
@@ -144,7 +144,33 @@ public class EncryptServiceImpl implements EncryptService {
                 decryptedStr.append(matrix[secondCoordinate.getX()][firstCoordinate.getY()]);
             }
         }
-        return decryptedStr.toString();
+        return checkDecryptedStr(decryptedStr.toString());
+    }
+
+    /**
+     * 整理解密后的明文字符串，删除填充字符
+     *
+     * @param decryptedStr 解密后的明文字符串
+     * @return 删除填充字符后的明文字符串
+     */
+    private String checkDecryptedStr(String decryptedStr) {
+        StringBuilder builder = new StringBuilder();
+        // 解密后的明文字符串长度一定为偶数，因此该循环可以完全覆盖
+        for (int i = 0; i < decryptedStr.length(); i += 2) {
+            builder.append(decryptedStr.charAt(i));
+            // 后者括号内判断式的含义为明文分组时两个相同字符在同一组，在其中间插入一个填充字符的情况
+            if (i + 2 < decryptedStr.length() && !(decryptedStr.charAt(i) == decryptedStr.charAt(i + 2) && decryptedStr.charAt(i + 1) == 'w')) {
+                builder.append(decryptedStr.charAt(i + 1));
+                continue;
+            }
+            // 该判断式含义为原明文长度为奇数，在最后一个字符后添加一个填充字符成一组
+            if (i + 2 == decryptedStr.length()) {
+                if (decryptedStr.charAt(i + 1) != 'w') {
+                    builder.append(decryptedStr.charAt(i + 1));
+                }
+            }
+        }
+        return builder.toString();
     }
 
     /**
@@ -216,6 +242,7 @@ public class EncryptServiceImpl implements EncryptService {
         int j = 0;
         for (char keyChar : keyChars) {
             matrix[i][j] = keyChar;
+            map.put(keyChar, new Coordinate(i, j));
             if (j + 1 < 5) {
                 j++;
             } else {
@@ -223,8 +250,8 @@ public class EncryptServiceImpl implements EncryptService {
                 i++;
             }
         }
-        for ( ; i < 5; i++) {
-            for ( ; ; j++) {
+        for (; i < 5; i++) {
+            for (; ; j++) {
                 // 跳过已经出现过的字符
                 while (!charSet.add(c)) {
                     c++;
@@ -232,11 +259,11 @@ public class EncryptServiceImpl implements EncryptService {
                 matrix[i][j] = c;
                 map.put(c, new Coordinate(i, j));
                 // 把i和j视为同一个字符
-                if(c + 1 == 'j') {
+                if (c + 1 == 'j') {
                     c += 2;
                 }
                 // 初始化下一行
-                if(j == 4) {
+                if (j == 4) {
                     j = 0;
                     break;
                 }

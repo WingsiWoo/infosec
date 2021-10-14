@@ -13,7 +13,9 @@ public interface EncryptService {
      */
     String caesar(String str, int offset);
 
-    String playfair(String str, String key);
+    String playfairEncrypt(String str, String key);
+
+    String playfairDecrypt(String str, String key);
 
     String hill(String str);
 }

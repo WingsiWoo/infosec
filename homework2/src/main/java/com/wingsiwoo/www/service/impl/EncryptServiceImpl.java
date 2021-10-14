@@ -49,47 +49,58 @@ public class EncryptServiceImpl implements EncryptService {
     }
 
     @Override
-    public String playfair(String str, String key) {
+    public String playfairEncrypt(String str, String key) {
         Assert.isTrue(str.matches("[a-zA-Z]+"), "PLAYFAIR加密的字符串必须为全英文字符");
         Assert.isTrue(key.matches("[a-zA-Z]+"), "PLAYFAIR密钥必须为全英文字符");
 
-        // 5*5字母矩阵
-        char[][] matrix = new char[5][5];
-        Set<Character> charSet = new HashSet<>();
-        char[] keyChars = getDeduplicatedKey(key, charSet);
         // 用于存储字符-下标的映射关系，方便代换
         Map<Character, Coordinate> map = new HashMap<>();
-
-        // 填充字符为w,横向替换
-
         // 初始化字母矩阵
-        char k = 'a';
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if (i + j < keyChars.length) {
-                    // 把去重后的密文字符数组按顺序填入矩阵中
-                    matrix[i][j] = keyChars[i + j];
-                    map.put(keyChars[i + j], new Coordinate(i, j));
-                } else {
-                    // 把密文中未出现过的字母按顺序填入矩阵中
-                    if (charSet.add(k)) {
-                        matrix[i][j] = k;
-                        map.put(k, new Coordinate(i, j));
-                    }
-                    k++;
-                }
-            }
-        }
+        char[][] matrix = initMatrix(key, map);
 
-
-        // 明文对换
-        // 整理明文，每两个字符一组，如果一组的字符一样，就在中间插入一个填充字母
         // 1.落在矩阵同一行的明文字母对中的字母由其右边的字母来代换，每行中最右边的字母用该行中最左边的字母来代换。
         // 2.落在矩阵同一列的明文字母对中的字母由其下面的字母来代换，每列最下面的字母用该列最上面的字母代换。
         // 3.如果明文字母对中的两个字母既不在同一行，也不在同一列，则由这两个字母确定的矩形的其他两个角的字母代换，（可以事先约定好横向代换或者纵向代换）。
         char[] groupedStr = getGroupedStr(str);
+        StringBuilder encryptedStr = new StringBuilder();
+        for (int i = 1; i < groupedStr.length; i += 2) {
+            Coordinate firstCoordinate = map.get(groupedStr[i - 1]);
+            Coordinate secondCoordinate = map.get(groupedStr[i]);
+            if (firstCoordinate.getX().equals(secondCoordinate.getX())) {
+                // 同一行的情况--用右面的字母替代，如果为最后一列则用第一列替代
+                if (firstCoordinate.getY() != 4) {
+                    encryptedStr.append(matrix[firstCoordinate.getX()][firstCoordinate.getY() + 1]);
+                } else {
+                    encryptedStr.append(matrix[firstCoordinate.getX()][0]);
+                }
+                if (secondCoordinate.getY() != 4) {
+                    encryptedStr.append(matrix[secondCoordinate.getX()][secondCoordinate.getY() + 1]);
+                } else {
+                    encryptedStr.append(matrix[secondCoordinate.getX()][0]);
+                }
+            } else if (firstCoordinate.getY().equals(secondCoordinate.getY())) {
+                // 同一列的情况--用下面的字母替代，如果为最后一行则用第一行替代
+                if (firstCoordinate.getX() != 4) {
+                    encryptedStr.append(matrix[firstCoordinate.getX() + 1][firstCoordinate.getY()]);
+                } else {
+                    encryptedStr.append(matrix[0][firstCoordinate.getY()]);
+                }
+                if (secondCoordinate.getX() != 4) {
+                    encryptedStr.append(matrix[secondCoordinate.getX() + 1][secondCoordinate.getY()]);
+                } else {
+                    encryptedStr.append(matrix[0][secondCoordinate.getY()]);
+                }
+            } else {
+                // 不同行不同列的情况--横向替换
+                encryptedStr.append(matrix[firstCoordinate.getX()][secondCoordinate.getY()]);
+                encryptedStr.append(matrix[secondCoordinate.getX()][firstCoordinate.getY()]);
+            }
+        }
+        return encryptedStr.toString();
+    }
 
-
+    @Override
+    public String playfairDecrypt(String str, String key) {
         return null;
     }
 
@@ -111,6 +122,12 @@ public class EncryptServiceImpl implements EncryptService {
         return builder.toString().toCharArray();
     }
 
+    /**
+     * 整理明文，每两个字符一组，如果一组的字符一样，就在中间插入一个填充字母
+     *
+     * @param str 明文
+     * @return 整理后的明文字符数组
+     */
     private char[] getGroupedStr(String str) {
         // 填充字符使用w
         str = str.toLowerCase();
@@ -135,6 +152,39 @@ public class EncryptServiceImpl implements EncryptService {
             }
         }
         return builder.toString().toCharArray();
+    }
+
+    /**
+     * 初始化字母矩阵
+     *
+     * @param key 密文
+     * @param map 字符-坐标映射表
+     * @return 字母矩阵
+     */
+    private char[][] initMatrix(String key, Map<Character, Coordinate> map) {
+        Set<Character> charSet = new HashSet<>();
+        char[] keyChars = getDeduplicatedKey(key, charSet);
+        // 5*5字母矩阵
+        char[][] matrix = new char[5][5];
+        char k = 'a';
+
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (i + j < keyChars.length) {
+                    // 把去重后的密文字符数组按顺序填入矩阵中
+                    matrix[i][j] = keyChars[i + j];
+                    map.put(keyChars[i + j], new Coordinate(i, j));
+                } else {
+                    // 把密文中未出现过的字母按顺序填入矩阵中
+                    if (charSet.add(k)) {
+                        matrix[i][j] = k;
+                        map.put(k, new Coordinate(i, j));
+                    }
+                    k++;
+                }
+            }
+        }
+        return matrix;
     }
 
     @Override

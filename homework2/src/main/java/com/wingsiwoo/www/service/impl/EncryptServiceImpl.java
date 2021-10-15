@@ -99,6 +99,38 @@ public class EncryptServiceImpl implements EncryptService {
         return encryptedStr.toString();
     }
 
+    /**
+     * 整理明文，每两个字符一组，如果一组的字符一样，就在中间插入一个填充字母
+     *
+     * @param str 明文
+     * @return 整理后的明文字符数组
+     */
+    private char[] getGroupedStr(String str) {
+        // 填充字符使用w
+        str = str.toLowerCase();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 1; i < str.length(); i += 2) {
+            // 位于下标i-1和i的字符为一组
+            if (str.charAt(i - 1) == str.charAt(i)) {
+                // 如果一组的两个字符相同，则在中间插入填充字符w
+                builder.append(str.charAt(i - 1));
+                builder.append('w');
+                // 使得下一次i指向重复字符后者的下一个字符
+                i--;
+            } else {
+                builder.append(str.charAt(i - 1));
+                builder.append(str.charAt(i));
+            }
+            // 处理本次分组后只剩下一个字符的情况
+            if (i + 1 == str.length() - 1) {
+                builder.append(str.charAt(i + 1));
+                builder.append('w');
+                break;
+            }
+        }
+        return builder.toString().toCharArray();
+    }
+
     @Override
     public String playfairDecrypt(String str, String key) {
         Assert.isTrue(str.matches("[a-zA-Z]+"), "PLAYFAIR解密的字符串必须为全英文字符");
@@ -192,38 +224,6 @@ public class EncryptServiceImpl implements EncryptService {
     }
 
     /**
-     * 整理明文，每两个字符一组，如果一组的字符一样，就在中间插入一个填充字母
-     *
-     * @param str 明文
-     * @return 整理后的明文字符数组
-     */
-    private char[] getGroupedStr(String str) {
-        // 填充字符使用w
-        str = str.toLowerCase();
-        StringBuilder builder = new StringBuilder();
-        for (int i = 1; i < str.length(); i += 2) {
-            // 位于下标i-1和i的字符为一组
-            if (str.charAt(i - 1) == str.charAt(i)) {
-                // 如果一组的两个字符相同，则在中间插入填充字符w
-                builder.append(str.charAt(i - 1));
-                builder.append('w');
-                // 使得下一次i指向重复字符后者的下一个字符
-                i--;
-            } else {
-                builder.append(str.charAt(i - 1));
-                builder.append(str.charAt(i));
-            }
-            // 处理本次分组后只剩下一个字符的情况
-            if (i + 1 == str.length() - 1) {
-                builder.append(str.charAt(i + 1));
-                builder.append('w');
-                break;
-            }
-        }
-        return builder.toString().toCharArray();
-    }
-
-    /**
      * 初始化字母矩阵
      *
      * @param key 密文
@@ -273,7 +273,7 @@ public class EncryptServiceImpl implements EncryptService {
     }
 
     @Override
-    public String hill(String str) {
+    public String hill(String str, String key) {
         return null;
     }
 }

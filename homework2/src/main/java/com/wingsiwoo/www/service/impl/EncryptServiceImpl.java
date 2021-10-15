@@ -273,7 +273,134 @@ public class EncryptServiceImpl implements EncryptService {
     }
 
     @Override
-    public String hill(String str, String key) {
+    public String hillEncrypt(String str, String key) {
+        Assert.isTrue(str.matches("[a-zA-Z]+"), "HILL加密的字符串必须为全英文字符");
+        Assert.isTrue(key.matches("[a-zA-Z]{4}"), "HILL加密密钥必须四位纯英文字母");
+
+        int[][] keyMatrix = getKeyMatrix(key);
+        int[][] strMatrix = getStrMatrix(str);
+        int[][] encryptedMatrix = new int[2][(str.length() + 1) / 2];
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < (str.length() + 1) / 2; j++) {
+                encryptedMatrix[i][j] = getMod(keyMatrix[i][0] * strMatrix[0][j] + keyMatrix[i][1] * strMatrix[1][j]);
+            }
+        }
+        return getMatrixStr(encryptedMatrix);
+    }
+
+    /**
+     * 获取4位英文密钥的对应向量矩阵
+     *
+     * @param key 密钥
+     * @return 对应向量矩阵，0-a/A，1-b/B以此类推
+     */
+    private int[][] getKeyMatrix(String key) {
+        int[][] matrix = new int[2][2];
+        int x = 0;
+        int y = 0;
+        for (int i = 0; i < key.length(); i++) {
+            char c = key.charAt(i);
+            matrix[x][y] = getLetterInt(c);
+            y++;
+            if (y == 2) {
+                y = 0;
+                x++;
+            }
+        }
+        Assert.isTrue(matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0] != 0, "矩阵不可逆");
+        return matrix;
+    }
+
+    @Override
+    public String hillDecrypt(String str, String key) {
+        Assert.isTrue(str.matches("[a-zA-Z]+"), "HILL解密的字符串必须为全英文字符");
+        Assert.isTrue(key.matches("[a-zA-Z]{4}"), "HILL解密密钥必须四位纯英文字母");
         return null;
     }
+
+    /**
+     * 求逆矩阵
+     *
+     * @param matrix 矩阵
+     * @return 逆矩阵
+     */
+    private int[][] getInverseMatrix(int[][] matrix) {
+        // 二阶矩阵的逆矩阵为伴随矩阵/秩,二阶矩阵的伴随矩阵为主对角线元素互换，副对角线元素取负
+        int[][] inverse = new int[2][2];
+        // 设从左到右，从上到下依次为abcd，该式表示ad-bc，即该矩阵的秩
+        int divisor = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+        // 对分数取模求得乘数
+        int multiplier = 1;
+        while (divisor * multiplier % 26 != 1) {
+            multiplier++;
+        }
+        inverse[0][0] = getMod(matrix[1][1] * multiplier);
+        inverse[0][1] = getMod(-matrix[0][1] * multiplier);
+        inverse[1][0] = getMod(-matrix[1][0] * multiplier);
+        inverse[1][1] = getMod(matrix[0][0] * multiplier);
+        return inverse;
+    }
+
+    /**
+     * 求模运算
+     */
+    private int getMod(int num) {
+        if (num < 0) {
+            return (26 + num) % 26;
+        } else {
+            return num % 26;
+        }
+    }
+
+    /**
+     * 获取英文字母对应数字，0-a/A，1-b/B以此类推
+     *
+     * @param c 英文字母
+     * @return 对应数字
+     */
+    private int getLetterInt(char c) {
+        if (c >= 'a' && c <= 'z') {
+            return c - 97;
+        } else if (c >= 'A' && c <= 'Z') {
+            // 大写英文字母
+            return c - 65;
+        }
+        return -1;
+    }
+
+    /**
+     * 生成两行n列的向量
+     */
+    private int[][] getStrMatrix(String str) {
+        int[][] matrix = new int[2][(str.length() + 1) / 2];
+        int k = 0;
+        for (int i = 0; i < (str.length() + 1) / 2 && k < str.length(); i++, k += 2) {
+            matrix[i][0] = str.charAt(k);
+            if(k + 1 == str.length()) {
+                // 说明字符串长度为单数，在最后补充一个该字符串的第一个字符
+                matrix[i][1] = str.charAt(0);
+            } else {
+                matrix[i][1] = str.charAt(k + 1);
+            }
+        }
+        return matrix;
+    }
+
+    private String getMatrixStr(int[][] matrix) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < matrix[0].length; i++) {
+            builder.append((char) matrix[0][i] + 97);
+            // 删除为凑成双数而添加的最后一个字符
+            if(i == matrix[0].length - 1 && (char)matrix[1][i] == builder.charAt(0)) {
+                break;
+            }
+            builder.append((char) matrix[1][i] + 97);
+        }
+
+        return builder.toString();
+    }
+
+    // private String reductStr(String str) {
+    //
+    // }
 }

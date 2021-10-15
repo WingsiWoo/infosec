@@ -162,8 +162,13 @@ public class MainFrame extends JFrame {
                                 }
                                 break;
                             case HILL:
-
-
+                                if(checkInputValid(text, key)) {
+                                    if(!key.matches("[a-zA-Z]{4}")) {
+                                        JOptionPane.showMessageDialog(MainFrame.this, "请输入4位纯英文字母密钥", "ERROR", JOptionPane.ERROR_MESSAGE);
+                                    } else {
+                                        JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.hillEncrypt(text, key), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
+                                    }
+                                }
                                 break;
                             default:
                                 JOptionPane.showMessageDialog(MainFrame.this, "请先选择加密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -202,8 +207,13 @@ public class MainFrame extends JFrame {
                                 }
                                 break;
                             case HILL:
-
-
+                                if(checkInputValid(text, key)) {
+                                    if(!key.matches("[a-zA-Z]{4}")) {
+                                        JOptionPane.showMessageDialog(MainFrame.this, "请输入4位纯英文字母密钥", "ERROR", JOptionPane.ERROR_MESSAGE);
+                                    } else {
+                                        JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.hillDecrypt(text, key), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
+                                    }
+                                }
                                 break;
                             default:
                                 JOptionPane.showMessageDialog(MainFrame.this, "请先选择加密方式", "ERROR", JOptionPane.ERROR_MESSAGE);

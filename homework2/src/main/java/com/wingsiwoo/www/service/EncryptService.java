@@ -32,5 +32,7 @@ public interface EncryptService {
      */
     String playfairDecrypt(String str, String key);
 
-    String hill(String str, String key);
+    String hillEncrypt(String str, String key);
+
+    String hillDecrypt(String str, String key);
 }

@@ -60,4 +60,41 @@ public class DesUtil {
         }
     }
 
+    /**
+     * 循环右移一个byte数组
+     *
+     * @param num   右移位数
+     * @param bytes 数组
+     */
+    public static void bytesMoveToRight(int num, byte[] bytes) {
+        // 每次循环右移一位，实现比较简单，但是效率比较慢
+        for (int i = 0; i < num; i++) {
+            // 记录最后一个字节的最低1位
+            byte low = (byte) (bytes[bytes.length - 1] & 1);
+            // 从第一个字节开始
+            for (int j = 0; j < bytes.length; j++) {
+                // 记录最低一位
+                byte lowest = (byte) (bytes[j] & 1);
+                // 右移一位，高位补0
+                bytes[j] = (byte) (bytes[j] >> 1 & 127);
+                // 把高位补上之前记录的最低1位
+                bytes[j] = (byte) (bytes[j] ^ (low << 7));
+                // 替换成新的最低1位
+                low = lowest;
+            }
+        }
+    }
+
+    /**
+     * 把byte数组类型转换为8位二进制类型字符串输出
+     *
+     * @param tByte 字节数组
+     */
+    public static void printTo8Binary(byte[] tByte) {
+        for (byte value : tByte) {
+            String tString = Integer.toBinaryString((value & 0xFF) + 0x100).substring(1);
+            System.out.print(tString + " ");
+        }
+        System.out.println();
+    }
 }

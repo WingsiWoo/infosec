@@ -97,4 +97,32 @@ public class DesUtil {
         }
         System.out.println();
     }
+
+    /**
+     * 求两个字节数组的二进制中不同的位数
+     *
+     * @param m
+     * @param n
+     * @return 返回不同的位数的个数
+     */
+    public static int countBitDiff(byte[] m, byte[] n) {
+        if (m.length != n.length) {
+            return -1;
+        }
+
+        byte[] ans = new byte[m.length];
+        for (int i = 0; i < m.length; i++) {
+            // 异或操作
+            ans[i] = (byte) (m[i] ^ n[i]);
+        }
+        int count = 0;
+        // 统计1的个数
+        for (int i = 0; i < ans.length; i++) {
+            while (ans[i] != 0) {
+                ans[i] &= (byte) (ans[i] - 1);
+                count++;
+            }
+        }
+        return count;
+    }
 }

@@ -2,7 +2,6 @@ package com.wingsiwoo.www.view;
 
 import com.wingsiwoo.www.service.EncryptService;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -130,7 +129,7 @@ public class MainFrame extends JFrame {
 
     private void initField() {
         textField = new JTextField();
-        keyField = new JTextField();
+        keyField = new JTextField("ddcf");
         buttonGroup = new ButtonGroup();
         encryptButton = new JButton();
         decryptButton = new JButton();
@@ -143,27 +142,27 @@ public class MainFrame extends JFrame {
                 String text = textField.getText().trim();
                 String key = keyField.getText().trim();
 
-                if(checkInputNotEmpty(text, key)) {
+                if (checkInputNotEmpty(text, key)) {
                     String choice = getChoice();
-                    if(choice == null) {
-                        JOptionPane.showMessageDialog(MainFrame.this, "请选择加/解密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    if (choice == null) {
+                        JOptionPane.showMessageDialog(MainFrame.this, "请选择加密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
                     } else {
                         switch (choice) {
-                            case CAESAR :
-                                if(!key.matches("^-?\\d+$")) {
+                            case CAESAR:
+                                if (!key.matches("^-?\\d+$")) {
                                     JOptionPane.showMessageDialog(MainFrame.this, "请输入纯数字偏移量", "ERROR", JOptionPane.ERROR_MESSAGE);
                                 } else {
                                     JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.caesar(text, Integer.parseInt(key)), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
                                 }
                                 break;
                             case PLAYFAIR:
-                                if(checkInputValid(text, key)) {
+                                if (checkInputValid(text, key)) {
                                     JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.playfairEncrypt(text, key), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
                                 }
                                 break;
                             case HILL:
-                                if(checkInputValid(text, key)) {
-                                    if(!key.matches("[a-zA-Z]{4}")) {
+                                if (checkInputValid(text, key)) {
+                                    if (!key.matches("[a-zA-Z]{4}")) {
                                         JOptionPane.showMessageDialog(MainFrame.this, "请输入4位纯英文字母密钥", "ERROR", JOptionPane.ERROR_MESSAGE);
                                     } else {
                                         JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.hillEncrypt(text, key), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
@@ -187,36 +186,36 @@ public class MainFrame extends JFrame {
                 String text = textField.getText().trim();
                 String key = keyField.getText().trim();
 
-                if(checkInputNotEmpty(text, key)) {
+                if (checkInputNotEmpty(text, key)) {
                     String choice = getChoice();
-                    if(choice == null) {
-                        JOptionPane.showMessageDialog(MainFrame.this, "请选择加/解密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    if (choice == null) {
+                        JOptionPane.showMessageDialog(MainFrame.this, "请选择解密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
                     } else {
                         switch (choice) {
-                            case CAESAR :
-                                if(!key.matches("^-?\\d+$")) {
+                            case CAESAR:
+                                if (!key.matches("^-?\\d+$")) {
                                     JOptionPane.showMessageDialog(MainFrame.this, "请输入纯数字偏移量", "ERROR", JOptionPane.ERROR_MESSAGE);
                                 } else {
                                     // caesar解密把原来的偏移量取负
-                                    JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.caesar(text, -Integer.parseInt(key)), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
+                                    JOptionPane.showMessageDialog(MainFrame.this, "解密成功！解密后文本为：" + encryptService.caesar(text, -Integer.parseInt(key)), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
                                 }
                                 break;
                             case PLAYFAIR:
-                                if(checkInputValid(text, key)) {
-                                    JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.playfairDecrypt(text, key), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
+                                if (checkInputValid(text, key)) {
+                                    JOptionPane.showMessageDialog(MainFrame.this, "解密成功！解密后文本为：" + encryptService.playfairDecrypt(text, key), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
                                 }
                                 break;
                             case HILL:
-                                if(checkInputValid(text, key)) {
-                                    if(!key.matches("[a-zA-Z]{4}")) {
+                                if (checkInputValid(text, key)) {
+                                    if (!key.matches("[a-zA-Z]{4}")) {
                                         JOptionPane.showMessageDialog(MainFrame.this, "请输入4位纯英文字母密钥", "ERROR", JOptionPane.ERROR_MESSAGE);
                                     } else {
-                                        JOptionPane.showMessageDialog(MainFrame.this, "加密成功！加密后文本为：" + encryptService.hillDecrypt(text, key), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
+                                        JOptionPane.showMessageDialog(MainFrame.this, "解密成功！解密后文本为：" + encryptService.hillDecrypt(text, key), "SUCCESS", JOptionPane.PLAIN_MESSAGE);
                                     }
                                 }
                                 break;
                             default:
-                                JOptionPane.showMessageDialog(MainFrame.this, "请先选择加密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(MainFrame.this, "请先选择解密方式", "ERROR", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
@@ -231,7 +230,7 @@ public class MainFrame extends JFrame {
         Enumeration<AbstractButton> elements = buttonGroup.getElements();
         while (elements.hasMoreElements()) {
             AbstractButton button = elements.nextElement();
-            if(button.isSelected()){
+            if (button.isSelected()) {
                 return button.getActionCommand();
             }
         }
@@ -239,11 +238,11 @@ public class MainFrame extends JFrame {
     }
 
     private boolean checkInputNotEmpty(String text, String key) {
-        if(text.isEmpty()) {
+        if (text.isEmpty()) {
             JOptionPane.showMessageDialog(MainFrame.this, "待加/解密文本不可为空", "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if(key.isEmpty()) {
+        if (key.isEmpty()) {
             JOptionPane.showMessageDialog(MainFrame.this, "密钥或偏移量不可为空", "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -251,11 +250,11 @@ public class MainFrame extends JFrame {
     }
 
     private boolean checkInputValid(String text, String key) {
-        if(!text.matches("[a-zA-Z]+")) {
+        if (!text.matches("[a-zA-Z]+")) {
             JOptionPane.showMessageDialog(MainFrame.this, "PLAYFAIR加密的字符串必须为全英文字符", "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if(!key.matches("[a-zA-Z]+")) {
+        if (!key.matches("[a-zA-Z]+")) {
             JOptionPane.showMessageDialog(MainFrame.this, "PLAYFAIR密钥必须为全英文字符", "ERROR", JOptionPane.ERROR_MESSAGE);
             return false;
         }

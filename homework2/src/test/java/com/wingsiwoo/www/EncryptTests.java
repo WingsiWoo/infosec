@@ -41,32 +41,12 @@ public class EncryptTests {
 
     @Test
     public void hill() {
-        int[][] matrix = new int[2][2];
-        matrix[0][0] = 1;
-        matrix[0][1] = 2;
-        matrix[1][0] = 0;
-        matrix[1][1] = 3;
-        // 二阶矩阵的逆矩阵为伴随矩阵/秩,二阶矩阵的伴随矩阵为主对角线元素互换，副对角线元素取负
-        int[][] inverse = new int[2][2];
-        // 设从左到右，从上到下依次为abcd，该式表示ad-bc，即该矩阵的秩
-        int divisor = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
-        // 对分数取模求得乘数
-        int multiplier = 1;
-        while (divisor * multiplier % 26 != 1) {
-            multiplier++;
-        }
-        inverse[0][0] = getMod(matrix[1][1] * multiplier);
-        inverse[0][1] = getMod(-matrix[0][1] * multiplier);
-        inverse[1][0] = getMod(-matrix[1][0] * multiplier);
-        inverse[1][1] = getMod(matrix[0][0] * multiplier);
-        System.out.println(inverse);
+        String key = "ddcf";
+        Assertions.assertEquals("hiat", encryptService.hillEncrypt("help", key));
+        Assertions.assertEquals("help", encryptService.hillDecrypt("hiat", key));
+
+        Assertions.assertEquals("aadc", encryptService.hillEncrypt("aaba", key));
+        // Assertions.assertEquals("aaba", encryptService.hillDecrypt("aadc", key));
     }
 
-    private int getMod(int num) {
-        if (num < 0) {
-            return (26 + num) % 26;
-        } else {
-            return num % 26;
-        }
-    }
 }

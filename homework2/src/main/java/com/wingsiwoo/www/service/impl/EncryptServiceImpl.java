@@ -279,12 +279,7 @@ public class EncryptServiceImpl implements EncryptService {
 
         int[][] keyMatrix = getKeyMatrix(key);
         int[][] strMatrix = getStrMatrix(str);
-        int[][] encryptedMatrix = new int[2][(str.length() + 1) / 2];
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < (str.length() + 1) / 2; j++) {
-                encryptedMatrix[i][j] = getMod(keyMatrix[i][0] * strMatrix[0][j] + keyMatrix[i][1] * strMatrix[1][j]);
-            }
-        }
+        int[][] encryptedMatrix = calculateMatrix(keyMatrix, strMatrix);
         return getMatrixStr(encryptedMatrix);
     }
 
@@ -315,7 +310,24 @@ public class EncryptServiceImpl implements EncryptService {
     public String hillDecrypt(String str, String key) {
         Assert.isTrue(str.matches("[a-zA-Z]+"), "HILL解密的字符串必须为全英文字符");
         Assert.isTrue(key.matches("[a-zA-Z]{4}"), "HILL解密密钥必须四位纯英文字母");
-        return null;
+
+        int[][] inverseMatrix = getInverseMatrix(getKeyMatrix(key));
+
+        int[][] strMatrix = getStrMatrix(str);
+        int[][] decryptedMatrix = calculateMatrix(inverseMatrix, strMatrix);
+        String decryptedStr = getMatrixStr(decryptedMatrix);
+        return decryptedStr.charAt(0) == decryptedStr.charAt(decryptedStr.length() - 1) ? decryptedStr.substring(0, decryptedStr.length() - 1) : decryptedStr;
+    }
+
+    private int[][] calculateMatrix(int[][] key, int[][] strMatrix) {
+        int[][] res = new int[2][strMatrix[0].length];
+        // 矩阵运算，密钥矩阵左乘明文矩阵
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < strMatrix[0].length; j++) {
+                res[i][j] = Math.floorMod(key[i][0] * strMatrix[0][j] + key[i][1] * strMatrix[1][j], 26);
+            }
+        }
+        return res;
     }
 
     /**
@@ -329,27 +341,19 @@ public class EncryptServiceImpl implements EncryptService {
         int[][] inverse = new int[2][2];
         // 设从左到右，从上到下依次为abcd，该式表示ad-bc，即该矩阵的秩
         int divisor = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
-        // 对分数取模求得乘数
+        // 求divisor的逆元
         int multiplier = 1;
-        while (divisor * multiplier % 26 != 1) {
+        int num = divisor;
+        while ((Math.floorMod(num, 26)) != 1) {
             multiplier++;
+            num += divisor;
         }
-        inverse[0][0] = getMod(matrix[1][1] * multiplier);
-        inverse[0][1] = getMod(-matrix[0][1] * multiplier);
-        inverse[1][0] = getMod(-matrix[1][0] * multiplier);
-        inverse[1][1] = getMod(matrix[0][0] * multiplier);
-        return inverse;
-    }
 
-    /**
-     * 求模运算
-     */
-    private int getMod(int num) {
-        if (num < 0) {
-            return (26 + num) % 26;
-        } else {
-            return num % 26;
-        }
+        inverse[0][0] = Math.floorMod(matrix[1][1] * multiplier, 26);
+        inverse[0][1] = Math.floorMod(-matrix[0][1] * multiplier, 26);
+        inverse[1][0] = Math.floorMod(-matrix[1][0] * multiplier, 26);
+        inverse[1][1] = Math.floorMod(matrix[0][0] * multiplier, 26);
+        return inverse;
     }
 
     /**
@@ -375,32 +379,31 @@ public class EncryptServiceImpl implements EncryptService {
         int[][] matrix = new int[2][(str.length() + 1) / 2];
         int k = 0;
         for (int i = 0; i < (str.length() + 1) / 2 && k < str.length(); i++, k += 2) {
-            matrix[i][0] = str.charAt(k);
-            if(k + 1 == str.length()) {
+            matrix[0][i] = getLetterInt(str.charAt(k));
+            if (k + 1 == str.length()) {
                 // 说明字符串长度为单数，在最后补充一个该字符串的第一个字符
-                matrix[i][1] = str.charAt(0);
+                matrix[1][i] = getLetterInt(str.charAt(0));
+                break;
             } else {
-                matrix[i][1] = str.charAt(k + 1);
+                matrix[1][i] = getLetterInt(str.charAt(k + 1));
             }
         }
         return matrix;
     }
 
+    /**
+     * 获取2行n列向量对应字符串
+     *
+     * @param matrix 向量矩阵
+     * @return 字符串
+     */
     private String getMatrixStr(int[][] matrix) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < matrix[0].length; i++) {
-            builder.append((char) matrix[0][i] + 97);
-            // 删除为凑成双数而添加的最后一个字符
-            if(i == matrix[0].length - 1 && (char)matrix[1][i] == builder.charAt(0)) {
-                break;
-            }
-            builder.append((char) matrix[1][i] + 97);
+            builder.append((char) (matrix[0][i] + 97));
+            builder.append((char) (matrix[1][i] + 97));
         }
-
         return builder.toString();
     }
 
-    // private String reductStr(String str) {
-    //
-    // }
 }

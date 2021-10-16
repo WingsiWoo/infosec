@@ -32,7 +32,21 @@ public interface EncryptService {
      */
     String playfairDecrypt(String str, String key);
 
+    /**
+     * hill加密方式
+     *
+     * @param str 待加密字符串
+     * @param key 4位英文字符密钥
+     * @return 加密后字符串
+     */
     String hillEncrypt(String str, String key);
 
+    /**
+     * hill解密方式
+     *
+     * @param str 待解密字符串
+     * @param key 4位英文字符密钥
+     * @return 解密后字符串
+     */
     String hillDecrypt(String str, String key);
 }

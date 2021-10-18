@@ -11,10 +11,10 @@ public class DesApplication {
         //初始化辅助数组
         DesUtil.initAuxiliaryBytes();
         //初始明文
-        String word = "wingsiwoo";
+        String word = "backendw";
         DesUtil.printTo8Binary(word.getBytes());
         //初始密钥
-        String key = "3219004950";
+        String key = "18374563";
         DesUtil.printTo8Binary(key.getBytes());
         //加密
         byte[] result = DesUtil.desEncrypt(word.getBytes(), key);
@@ -68,6 +68,31 @@ public class DesApplication {
      * @param result 密文
      */
     private static void changeKey(String key, byte[] result) {
+        for (int i = 1; i <= BYTE_64; i++) {
+            System.out.print("密钥改变" + i + "位, ");
+            //原始密钥
+            byte[] origin = key.getBytes();
+            //改变位数
+            int digits = 0;
+            //10种情况取平均
+            for (int j = 0; j < REPEAT; j++) {
+                //现在密钥
+                byte[] now = new byte[8];
+                //用辅助数组进行变位（i-1位）
+                for (int k = 0; k < origin.length; k++) {
+                    now[k] = (byte) (origin[k] ^ auxiliaryBytes[i - 1][k]);
+                }
+                //右移一下辅助数组，供下种情况使用
+                bytesMoveToRight(1, auxiliaryBytes[i - 1]);
+                //加密
+                byte[] r = desEncrypt(now, key);
+                //和原始密文比较，记录改变位数
+                if (r != null) {
+                    digits += countBitDiff(r, result);
+                }
+            }
+            System.out.println("重复10次，密文平均改变了" + (double) digits / 10.0 + "位");
+        }
 
     }
 
